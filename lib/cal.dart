@@ -1,5 +1,17 @@
 import 'package:flutter/material.dart';
 
+void main() => runApp(MyApp());
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: CalculatorScreen(),
+    );
+  }
+}
+
 class CalculatorScreen extends StatefulWidget {
   @override
   _CalculatorScreenState createState() => _CalculatorScreenState();
@@ -20,11 +32,17 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
         _num1 = 0;
         _num2 = 0;
         _operation = "";
+      } else if (text == "⌫") {
+        _currentInput = _currentInput.isNotEmpty
+            ? _currentInput.substring(0, _currentInput.length - 1)
+            : "";
+        _output = _currentInput.isNotEmpty ? _currentInput : "0";
       } else if (text == "+" || text == "-" || text == "×" || text == "÷") {
         if (_currentInput.isNotEmpty) {
           _num1 = double.parse(_currentInput);
           _operation = text;
           _currentInput = "";
+          _output = "$_num1 $_operation"; // Display operator on screen
         }
       } else if (text == "=") {
         if (_currentInput.isNotEmpty) {
@@ -45,7 +63,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
         }
       } else {
         _currentInput += text;
-        _output = _currentInput;
+        _output = _operation.isEmpty ? _currentInput : "$_num1 $_operation $_currentInput";
       }
     });
   }
@@ -83,24 +101,24 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                 mainAxisSpacing: 12,
                 crossAxisSpacing: 12,
                 children: [
-                  _buildButton("C", Colors.redAccent),
-                  _buildButton("÷", Colors.orange),
-                  _buildButton("×", Colors.orange),
-                  _buildButton("⌫", Colors.grey),
+                  _buildButton("C", color: Colors.redAccent),
+                  _buildButton("÷", color: Colors.orange),
+                  _buildButton("×", color: Colors.orange),
+                  _buildButton("⌫", color: Colors.grey),
                   _buildButton("7"),
                   _buildButton("8"),
                   _buildButton("9"),
-                  _buildButton("-", Colors.orange),
+                  _buildButton("-", color: Colors.orange),
                   _buildButton("4"),
                   _buildButton("5"),
                   _buildButton("6"),
-                  _buildButton("+", Colors.orange),
+                  _buildButton("+", color: Colors.orange),
                   _buildButton("1"),
                   _buildButton("2"),
                   _buildButton("3"),
-                  _buildButton("=", Colors.green),
-                  _buildButton("0", Colors.white, isWide: true),
-                  _buildButton(".", Colors.white),
+                  _buildButton("=", color: Colors.green),
+                  _buildButton("0", color: Colors.white, isWide: true),
+                  _buildButton(".", color: Colors.white),
                 ],
               ),
             ),
@@ -110,7 +128,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
     );
   }
 
-  Widget _buildButton(String text, [Color? color, bool isWide = false]) {
+  Widget _buildButton(String text, {Color? color, bool isWide = false}) {
     return GestureDetector(
       onTap: () => _buttonPressed(text),
       child: Container(
@@ -120,10 +138,10 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
           borderRadius: BorderRadius.circular(12),
           gradient: (color == null)
               ? LinearGradient(
-                  colors: [Colors.grey[800]!, Colors.grey[700]!],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                )
+            colors: [Colors.grey[800]!, Colors.grey[700]!],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          )
               : null,
         ),
         width: isWide ? 160 : 70,
@@ -136,5 +154,3 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
     );
   }
 }
-
-
