@@ -1,92 +1,132 @@
 import 'package:flutter/material.dart';
-class AuthScreen extends StatefulWidget {
+
+void main() => runApp(ToDoApp());
+
+class ToDoApp extends StatelessWidget {
   @override
-  _AuthScreenState createState() => _AuthScreenState();
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'To-Do App',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: ToDoHomePage(),
+      debugShowCheckedModeBanner: false,
+    );
+  }
 }
 
-class _AuthScreenState extends State<AuthScreen> {
-  final _formKey = GlobalKey<FormState>();
-  bool isLogin = true;
-  bool _obscureText = true;
-  
+class Task {
+  final String id;
+  String title;
+  bool isDone;
+
+  Task({required this.id, required this.title, this.isDone = false});
+}
+
+class ToDoHomePage extends StatefulWidget {
+  @override
+  _ToDoHomePageState createState() => _ToDoHomePageState();
+}
+
+class _ToDoHomePageState extends State<ToDoHomePage> {
+  final List<Task> _tasks = [];
+  final _controller = TextEditingController();
+  String? _editingId;
+
+  void _addOrUpdateTask() {
+    final text = _controller.text.trim();
+    if (text.isEmpty) return;
+
+    setState(() {
+      if (_editingId == null) {
+        _tasks.add(Task(id: DateTime.now().toString(), title: text));
+      } else {
+        final index = _tasks.indexWhere((task) => task.id == _editingId);
+        if (index != -1) _tasks[index].title = text;
+        _editingId = null;
+      }
+      _controller.clear();
+    });
+  }
+
+  void _editTask(Task task) {
+    setState(() {
+      _controller.text = task.title;
+      _editingId = task.id;
+    });
+  }
+
+  void _deleteTask(String id) {
+    setState(() {
+      _tasks.removeWhere((task) => task.id == id);
+    });
+  }
+
+  void _toggleDone(Task task) {
+    setState(() {
+      task.isDone = !task.isDone;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20),
-            child: ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: 400),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      isLogin ? "Login" : "Signup", 
-                      style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(height: 20),
-                    TextFormField(
-                      decoration: InputDecoration(hintText: "Email"),
-                      keyboardType: TextInputType.emailAddress,
-                      validator: (value) {
-                        if (value == null || value.isEmpty || !value.contains('@')) {
-                          return 'Enter a valid email';
-                        }
-                        return null;
-                      },
-                    ),
-                    SizedBox(height: 10),
-                    TextFormField(
-                      decoration: InputDecoration(
-                        hintText: "Password",
-                        suffixIcon: IconButton(
-                          icon: Icon(_obscureText ? Icons.visibility : Icons.visibility_off),
-                          onPressed: () {
-                            setState(() {
-                              _obscureText = !_obscureText;
-                            });
-                          },
-                        ),
-                      ),
-                      obscureText: _obscureText,
-                      validator: (value) {
-                        if (value == null || value.length < 6) {
-                          return 'Password must be at least 6 characters';
-                        }
-                        return null;
-                      },
-                    ),
-                    SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: () {
-                        if (_formKey.currentState!.validate()) {
-                          // Perform login or signup action
-                        }
-                      },
-                      child: Text(isLogin ? "Login" : "Signup"),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        setState(() {
-                          isLogin = !isLogin;
-                        });
-                      },
-                      child: Text(
-                        isLogin ? "Don't have an account? Signup" : "Already have an account? Login",
-                      ),
-                    )
-                  ],
+      appBar: AppBar(
+        title: Text("To-Do App"),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            TextField(
+              controller: _controller,
+              decoration: InputDecoration(
+                hintText: _editingId == null ? 'Enter a new task' : 'Edit task',
+                suffixIcon: IconButton(
+                  icon: Icon(Icons.save),
+                  onPressed: _addOrUpdateTask,
                 ),
               ),
+              onSubmitted: (_) => _addOrUpdateTask(),
             ),
-          ),
+            SizedBox(height: 16),
+            Expanded(
+              child: _tasks.isEmpty
+                  ? Center(child: Text('No tasks yet!'))
+                  : ListView.builder(
+                      itemCount: _tasks.length,
+                      itemBuilder: (ctx, index) {
+                        final task = _tasks[index];
+                        return ListTile(
+                          leading: Checkbox(
+                            value: task.isDone,
+                            onChanged: (_) => _toggleDone(task),
+                          ),
+                          title: Text(
+                            task.title,
+                            style: TextStyle(
+                              decoration: task.isDone ? TextDecoration.lineThrough : null,
+                            ),
+                          ),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: Icon(Icons.edit, color: Colors.blue),
+                                onPressed: () => _editTask(task),
+                              ),
+                              IconButton(
+                                icon: Icon(Icons.delete, color: Colors.red),
+                                onPressed: () => _deleteTask(task.id),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+            ),
+          ],
         ),
       ),
     );
   }
 }
-
-// Next: To-Do App with CRUD Operations
