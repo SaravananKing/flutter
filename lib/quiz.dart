@@ -1,7 +1,10 @@
-// 4️⃣ Quiz App with Timer
 import 'dart:async';
-import 'dart:convert';
 import 'package:flutter/material.dart';
+
+void main() => runApp(MaterialApp(
+  debugShowCheckedModeBanner: false,
+  home: QuizScreen(),
+));
 
 class QuizScreen extends StatefulWidget {
   @override
@@ -12,17 +15,17 @@ class _QuizScreenState extends State<QuizScreen> {
   List<Map<String, dynamic>> _questions = [
     {
       "question": "What is the capital of France?",
-      "options": ["Berlin", "Madrid", "Paris", "Lisbonhttp: ^0.13.6"],
+      "options": ["Berlin", "Madrid", "Paris", "Lisbon"],
       "answer": "Paris"
     },
     {
       "question": "Which planet is known as the Red Planet?",
-      "options": ["Earth", "Mars", "Jupiter", "Saturn'dependencies"],
+      "options": ["Earth", "Mars", "Jupiter", "Saturn"],
       "answer": "Mars"
     },
     {
       "question": "What is 2 + 2?",
-      "options": ["3", "4", "5", "6 image_picker ^1.0.7"],
+      "options": ["3", "4", "5", "6"],
       "answer": "4"
     }
   ];
@@ -32,6 +35,18 @@ class _QuizScreenState extends State<QuizScreen> {
   int _timer = 10;
   late Timer _questionTimer;
   bool _answered = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _startTimer();
+  }
+
+  @override
+  void dispose() {
+    _questionTimer.cancel();
+    super.dispose();
+  }
 
   void _startTimer() {
     _timer = 10;
@@ -67,8 +82,8 @@ class _QuizScreenState extends State<QuizScreen> {
         if (selectedOption == _questions[_currentQuestionIndex]['answer']) {
           _score++;
         }
-        Future.delayed(Duration(seconds: 2), _nextQuestion);
       });
+      Future.delayed(Duration(seconds: 2), _nextQuestion);
     }
   }
 
@@ -76,9 +91,9 @@ class _QuizScreenState extends State<QuizScreen> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => AlertDialog(
+      builder: (_) => AlertDialog(
         title: Text("Quiz Completed"),
-        content: Text("Your score: $_score/${_questions.length}"),
+        content: Text("Your score: $_score / ${_questions.length}"),
         actions: [
           TextButton(
             onPressed: () {
@@ -91,49 +106,41 @@ class _QuizScreenState extends State<QuizScreen> {
               });
             },
             child: Text("Restart"),
-          ),
+          )
         ],
       ),
     );
   }
 
   @override
-  void initState() {
-    super.initState();
-    _startTimer();
-  }
-
-  @override
-  void dispose() {
-    _questionTimer.cancel();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    var question = _questions[_currentQuestionIndex];
     return Scaffold(
       appBar: AppBar(title: Text("Quiz App")),
       body: Padding(
         padding: EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
               "Time Left: $_timer s",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red),
+              style: TextStyle(fontSize: 20, color: Colors.red, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 20),
             Text(
-              _questions[_currentQuestionIndex]['question'],
+              question['question'],
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
             SizedBox(height: 20),
-            ..._questions[_currentQuestionIndex]['options'].map((option) {
-              return ElevatedButton(
-                onPressed: () => _checkAnswer(option),
-                child: Text(option, style: TextStyle(fontSize: 20)),
+            ...question['options'].map<Widget>((option) {
+              return Container(
+                width: double.infinity,
+                margin: EdgeInsets.symmetric(vertical: 6),
+                child: ElevatedButton(
+                  onPressed: () => _checkAnswer(option),
+                  child: Text(option, style: TextStyle(fontSize: 20)),
+                ),
               );
             }).toList(),
           ],
@@ -142,6 +149,3 @@ class _QuizScreenState extends State<QuizScreen> {
     );
   }
 }
-
-// Next: Image Gallery App
-
