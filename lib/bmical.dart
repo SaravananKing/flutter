@@ -1,5 +1,12 @@
 import 'package:flutter/material.dart';
 
+void main() {
+  runApp(MaterialApp(
+    home: BMICalculatorScreen(),
+    debugShowCheckedModeBanner: false,
+  ));
+}
+
 class BMICalculatorScreen extends StatefulWidget {
   @override
   _BMICalculatorScreenState createState() => _BMICalculatorScreenState();
@@ -13,11 +20,11 @@ class _BMICalculatorScreenState extends State<BMICalculatorScreen> {
   void _calculateBMI() {
     double height = double.tryParse(heightController.text) ?? 0;
     double weight = double.tryParse(weightController.text) ?? 0;
-    
+
     if (height > 0 && weight > 0) {
       double bmi = weight / ((height / 100) * (height / 100));
       String category = "";
-      
+
       if (bmi < 18.5) {
         category = "Underweight";
       } else if (bmi >= 18.5 && bmi < 24.9) {
@@ -27,7 +34,7 @@ class _BMICalculatorScreenState extends State<BMICalculatorScreen> {
       } else {
         category = "Obese";
       }
-      
+
       setState(() {
         _result = "Your BMI: ${bmi.toStringAsFixed(1)}\nCategory: $category";
       });
