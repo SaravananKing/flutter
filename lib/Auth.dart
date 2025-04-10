@@ -1,132 +1,78 @@
 import 'package:flutter/material.dart';
 
-void main() => runApp(ToDoApp());
+void main() => runApp(MyApp());
 
-class ToDoApp extends StatelessWidget {
+class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'To-Do App',
-      theme: ThemeData(primarySwatch: Colors.blue),
-      home: ToDoHomePage(),
-      debugShowCheckedModeBanner: false,
+      title: 'Login Demo',
+      home: LoginPage(),
     );
   }
 }
 
-class Task {
-  final String id;
-  String title;
-  bool isDone;
-
-  Task({required this.id, required this.title, this.isDone = false});
-}
-
-class ToDoHomePage extends StatefulWidget {
+class LoginPage extends StatefulWidget {
   @override
-  _ToDoHomePageState createState() => _ToDoHomePageState();
+  _LoginPageState createState() => _LoginPageState();
 }
 
-class _ToDoHomePageState extends State<ToDoHomePage> {
-  final List<Task> _tasks = [];
-  final _controller = TextEditingController();
-  String? _editingId;
+class _LoginPageState extends State<LoginPage> {
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  String _errorMessage = '';
 
-  void _addOrUpdateTask() {
-    final text = _controller.text.trim();
-    if (text.isEmpty) return;
+  void _login() {
+    String email = _emailController.text;
+    String password = _passwordController.text;
 
-    setState(() {
-      if (_editingId == null) {
-        _tasks.add(Task(id: DateTime.now().toString(), title: text));
-      } else {
-        final index = _tasks.indexWhere((task) => task.id == _editingId);
-        if (index != -1) _tasks[index].title = text;
-        _editingId = null;
-      }
-      _controller.clear();
-    });
-  }
-
-  void _editTask(Task task) {
-    setState(() {
-      _controller.text = task.title;
-      _editingId = task.id;
-    });
-  }
-
-  void _deleteTask(String id) {
-    setState(() {
-      _tasks.removeWhere((task) => task.id == id);
-    });
-  }
-
-  void _toggleDone(Task task) {
-    setState(() {
-      task.isDone = !task.isDone;
-    });
+    if (email == 'test@example.com' && password == 'password123') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => HomePage()),
+      );
+    } else {
+      setState(() {
+        _errorMessage = 'Invalid email or password';
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("To-Do App"),
-      ),
+      appBar: AppBar(title: Text('Login')),
       body: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             TextField(
-              controller: _controller,
-              decoration: InputDecoration(
-                hintText: _editingId == null ? 'Enter a new task' : 'Edit task',
-                suffixIcon: IconButton(
-                  icon: Icon(Icons.save),
-                  onPressed: _addOrUpdateTask,
-                ),
-              ),
-              onSubmitted: (_) => _addOrUpdateTask(),
+              controller: _emailController,
+              decoration: InputDecoration(labelText: 'Email'),
             ),
-            SizedBox(height: 16),
-            Expanded(
-              child: _tasks.isEmpty
-                  ? Center(child: Text('No tasks yet!'))
-                  : ListView.builder(
-                      itemCount: _tasks.length,
-                      itemBuilder: (ctx, index) {
-                        final task = _tasks[index];
-                        return ListTile(
-                          leading: Checkbox(
-                            value: task.isDone,
-                            onChanged: (_) => _toggleDone(task),
-                          ),
-                          title: Text(
-                            task.title,
-                            style: TextStyle(
-                              decoration: task.isDone ? TextDecoration.lineThrough : null,
-                            ),
-                          ),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(
-                                icon: Icon(Icons.edit, color: Colors.blue),
-                                onPressed: () => _editTask(task),
-                              ),
-                              IconButton(
-                                icon: Icon(Icons.delete, color: Colors.red),
-                                onPressed: () => _deleteTask(task.id),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
+            TextField(
+              controller: _passwordController,
+              decoration: InputDecoration(labelText: 'Password'),
+              obscureText: true,
             ),
+            SizedBox(height: 20),
+            ElevatedButton(onPressed: _login, child: Text('Login')),
+            SizedBox(height: 10),
+            Text(_errorMessage, style: TextStyle(color: Colors.red)),
           ],
         ),
       ),
+    );
+  }
+}
+
+class HomePage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Home')),
+      body: Center(child: Text('Welcome!')),
     );
   }
 }
